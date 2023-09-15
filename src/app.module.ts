@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { configuration } from './configs';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { PrismaService } from './prisma.service';
 
 @Module({
     imports: [
@@ -11,27 +12,17 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
             isGlobal: true,
             load: [configuration],
         }),
-        // ClientsModule.registerAsync([
-        //     {
-        //         name: 'USER_SERVICE',
-        //         useFactory: (configService) => {
-        //             console.log(
-        //                 '🚀 ~ file: app.module.ts:18 ~ configService:',
-        //                 configService,
-        //             );
-        //             return {
-        //                 transport: Transport.TCP,
-        //                 options: {
-        //                     host: configService.get('rabbitmq'),
-        //                 },
-        //             };
-        //         },
-        //         inject: [ConfigModule],
-        //     },
-        // ]),
     ],
 
     controllers: [AppController],
-    providers: [AppService],
+    providers: [
+        AppService,
+        {
+            provide: 'PRISMA_SERVICE',
+            useFactory: () => {
+                return new PrismaService();
+            },
+        },
+    ],
 })
 export class AppModule {}
